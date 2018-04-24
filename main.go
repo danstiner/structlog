@@ -19,5 +19,18 @@ func main() {
 		return
 	}
 
-	fmt.Println("Hello.")
+	s, m, err := render("Hello {world} at {position}!", "Earth", struct {
+		Lat  float32
+		Long float32
+	}{
+		Lat:  24.7,
+		Long: 132.2,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(s)
+	fmt.Println(m)
 }

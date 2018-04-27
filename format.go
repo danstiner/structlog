@@ -1,140 +1,143 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"strconv"
+	"strings"
 )
 
-func render(template string, v ...interface{}) (string, map[string]interface{}, error) {
-	var buf []rune
-	ln := len(template)
-	r := []rune(template)
-	argsByIndex := false
-	argIndex := 0
-	m := make(map[string]interface{})
+type template struct {
+	text  []byte
+	holes []hole
+}
 
-	// Template ::= ( Text | Hole )*
-	for i := 0; i < len(r); i++ {
-		if r[i] != '{' {
-			// [^\{] of:
-			// Text ::= ([^\{] | '{{' | '}}')+
-			buf = append(buf, r[i])
+type hole struct {
+	alignment int
+	argIndex  int
+	name      string
+	serialize bool
+	stringify bool
+	textIndex int
+}
+
+func parse(format string) (*template, error) {
+	var buf bytes.Buffer
+	var holes []hole
+
+	reader := strings.NewReader(format)
+
+	// Template ::= ( Text | EscapedOpenBrace | Hole )*
+	for reader.Len() > 0 {
+		ch, _, _ := reader.ReadRune()
+		if ch != '{' {
+			// Text ::= [^\{]
+			buf.WriteRune(ch)
 			continue
 		}
 
-		// Skip over current '{' rune
-		i++
-		if i >= ln {
-			return "", nil, errors.New("ambiguous unclosed opening brace")
+		if reader.Len() == 0 {
+			return nil, errors.New("unclosed opening brace")
 		}
 
-		if r[i] == '{' {
-			// '{{' of:
-			// Text ::= ([^\{] | '{{' | '}}')+
-			buf = append(buf, '{', '{')
+		ch, _, _ = reader.ReadRune()
+		if ch == '{' {
+			// EscapedOpenBrace :: = '{{'
+			_, _ = buf.WriteRune('{')
+			_, _ = buf.WriteRune('{')
 			continue
 		}
 
-		// Hole ::=  '{' ('@' | '$')? (Name | Index) (',' Alignment)? (':' Format)? '}'
-		var serialize bool
-		var stringify bool
-		var isIndex bool
-		var name string
-		var index = argIndex
-		var alignment int
-		// TODO Format will require back-tracking
-		argIndex++
+		// Hole ::=  '{' Operator? Id (',' Alignment)? (':' Format)? '}'
+		i, _ := reader.Seek(0, io.SeekCurrent)
+		hole := hole{
+			argIndex:  len(holes),
+			textIndex: buf.Len(),
+		}
 
-		// ('@' | '$')?
-		if r[i] == '@' || r[i] == '$' {
-			serialize = r[i] == '@'
-			stringify = r[i] == '$'
-			i++
-			if i >= ln {
-				return "", nil, errors.New("unexpected end of Hole")
+		// Operator ::= ('@' | '$')?
+		if ch == '@' || ch == '$' {
+			hole.serialize = ch == '@'
+			hole.stringify = ch == '$'
+			ch, _, _ = reader.ReadRune()
+			if reader.Len() == 0 {
+				return nil, errors.New("unexpected end of Hole")
 			}
 		}
 
-		// (Name | Index)
+		// Id ::= (Name | Index)
 		// Name ::= [0-9A-z_]+
 		// Index::= [0-9]+
-		j := i
-		for ; j < len(r) && isNameRune(r[j]); j++ {
+		var id strings.Builder
+		var isIndex = true
+		i, _ = reader.Seek(0, io.SeekCurrent)
+		for reader.Len() > 0 {
+			if !isNameRune(ch) {
+				break
+			}
+			_, _ = id.WriteRune(ch)
+			isIndex = isIndex && isIndexRune(ch)
+			ch, _, _ = reader.ReadRune()
 		}
 
-		isIndex = true
-		for _, c := range r[i:j] {
-			isIndex = isIndex && isIndexRune(c)
-		}
+		j, _ := reader.Seek(0, io.SeekCurrent)
 
 		if i == j {
-			return "", nil, errors.New("Name/Index must has at least one character")
+			return nil, errors.New("Name/Index must have at least one character")
 		}
 
-		if r[j] != ',' && r[j] != ':' && r[j] != '}' {
+		if ch != ',' && ch != ':' && ch != '}' {
 			var holeType string
 			if isIndex {
 				holeType = "Index"
 			} else {
 				holeType = "Name"
 			}
-			return "", nil, fmt.Errorf("unexpected end of %s", holeType)
+			return nil, fmt.Errorf("unexpected end of %s", holeType)
 		}
 
-		name = string(r[i:j])
+		hole.name = id.String()
 		i = j
 
 		if isIndex {
 			var err error
-			index, err = strconv.Atoi(name)
+			hole.argIndex, err = strconv.Atoi(hole.name)
 			if err != nil {
-				return "", nil, fmt.Errorf("TODO: %v", err)
+				return nil, fmt.Errorf("TODO: %v", err)
 			}
 		}
 
 		// (',' Alignment)?
-		if r[i] == ',' {
+		if ch == ',' {
 			// Alignment ::= '-'?[0-9]+
 
 			// TODO
+			return nil, errors.New("Alignment specifier not yet implemented")
 		}
 
 		// (':' Format)?
-		if r[i] == ':' {
+		if ch == ':' {
 			// Format ::= [^\{]+
 
-			// TODO
+			// TODO Format will require back-tracking
+			return nil, errors.New("Format specifier not yet implemented")
 		}
 
 		// '}'
-		if r[i] != '}' {
-			return "", nil, errors.New("unexpected character at end of Hole")
+		if ch != '}' {
+			return nil, errors.New("unexpected character at end of Hole")
 		}
 
-		if argsByIndex {
-			// TODO
-			continue
-		}
-
-		if index > len(v) {
-			return "", nil, errors.New("Out of bounds access of args")
-		}
-		m[name] = v[index]
-		// format and append value
-		h, err := fmtHole(v[index], serialize, stringify, alignment)
-		if err != nil {
-			return "", nil, fmt.Errorf("TODO: %v", err)
-		}
-		buf = append(buf, h...)
+		holes = append(holes, hole)
 	}
 
-	if argIndex != len(v) {
-		return "", nil, errors.New("did not match all args")
-	}
-
-	return string(buf), m, nil
+	return &template{
+		text:  buf.Bytes(),
+		holes: holes,
+	}, nil
 }
 
 // Name ::= [0-9A-z_]+
@@ -158,13 +161,49 @@ func isIndexRune(c rune) bool {
 	return c >= '0' && c <= '9'
 }
 
-func fmtHole(v interface{}, serialize, stringify bool, alignment int) ([]rune, error) {
-	if serialize {
+func render(format string, v ...interface{}) (string, map[string]interface{}, error) {
+	template, err := parse(format)
+	if err != nil {
+		return "", nil, fmt.Errorf("TODO: %v", err)
+	}
+
+	if len(template.holes) != len(v) {
+		return "", nil, errors.New("TODO")
+	}
+
+	m := make(map[string]interface{})
+	var bldr strings.Builder
+	var textIndex int
+	for i, h := range template.holes {
+		m[h.name] = v[i]
+
+		// Copy bytes from text buffer between the last hole (if any)
+		// and the current hole into the output builder
+		_, _ = bldr.Write(template.text[textIndex:h.textIndex])
+		textIndex = h.textIndex
+
+		// Format value of hole and write to output builder
+		err := writeHoleFmt(&h, v[i], &bldr)
+		if err != nil {
+			return "", nil, fmt.Errorf("TODO: %v", err)
+		}
+	}
+
+	// Copy remaining bytes from text buffer
+	_, _ = bldr.Write(template.text[textIndex:])
+
+	return bldr.String(), m, nil
+}
+
+func writeHoleFmt(h *hole, v interface{}, b *strings.Builder) error {
+	if h.serialize {
 		bytes, err := json.Marshal(v)
 		if err != nil {
-			return nil, fmt.Errorf("TODO: %v", err)
+			return fmt.Errorf("TODO: %v", err)
 		}
-		return []rune(string(bytes)), nil
+		_, err = b.Write(bytes)
+		return err
 	}
-	return []rune(fmt.Sprintf("%v", v)), nil
+	_, err := b.WriteString(fmt.Sprintf("%v", v))
+	return err
 }

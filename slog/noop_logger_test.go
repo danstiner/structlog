@@ -15,6 +15,11 @@ func TestNoopLogMethods(t *testing.T) {
 	log.Warn("message")
 }
 
+func TestNoopWith(t *testing.T) {
+	log := NewNoopLogger()
+	log.With("k", "v").With("k", "v")
+}
+
 func TestNoopErrorWrap(t *testing.T) {
 	log := NewNoopLogger()
 	err := errors.New("error")

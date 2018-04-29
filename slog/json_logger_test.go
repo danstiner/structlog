@@ -84,3 +84,30 @@ func TestJsonWith(t *testing.T) {
 		"k":         "v",
 	}, m)
 }
+
+func TestJsonSerializeHole(t *testing.T) {
+	pos := struct {
+		Lat  float32 `json:"lat"`
+		Long float32 `json:"lng"`
+	}{
+		Lat:  25,
+		Long: 132,
+	}
+	var buf bytes.Buffer
+	log := NewJsonLogger(&buf)
+
+	log.Info("Processed {@position} in {elapsed} ms", pos, 34)
+
+	var m map[string]interface{}
+	require.NoError(t, json.Unmarshal(buf.Bytes(), &m))
+	assert.Equal(t, map[string]interface{}{
+		"@level":    "INFO",
+		"@message":  `Processed {"Lat":25,"Long":132} in 34 ms`,
+		"@template": "Processed {@position} in {elapsed} ms",
+		"elapsed":   34,
+		"position": map[string]interface{}{
+			"lat": 25,
+			"lng": 132,
+		},
+	}, m)
+}

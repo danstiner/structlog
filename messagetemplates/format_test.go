@@ -29,11 +29,11 @@ func TestSerializeHole(t *testing.T) {
 		Long float32
 	}{
 		Lat:  25,
-		Long: 134,
+		Long: 132,
 	}
 	msg, m, err := Format("Processed {@position} in {elapsed} ms", pos, 34)
 	require.NoError(t, err)
-	assert.Equal(t, `Processed {"Lat":25,"Long":134} in 34 ms`, msg)
+	assert.Equal(t, `Processed {"Lat":25,"Long":132} in 34 ms`, msg)
 	assert.Equal(t, map[string]interface{}{
 		"position": pos,
 		"elapsed":  34,

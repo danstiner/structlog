@@ -8,16 +8,16 @@ import (
 )
 
 func TestNoHoles(t *testing.T) {
-	s, m, err := render("Message")
+	msg, m, err := format("Message")
 	require.NoError(t, err)
-	assert.Equal(t, "Message", s)
+	assert.Equal(t, "Message", msg)
 	assert.Equal(t, map[string]interface{}{}, m)
 }
 
 func TestHole(t *testing.T) {
-	s, m, err := render("{msg}", "Hello world!")
+	msg, m, err := format("{msg}", "Hello world!")
 	require.NoError(t, err)
-	assert.Equal(t, "Hello world!", s)
+	assert.Equal(t, "Hello world!", msg)
 	assert.Equal(t, map[string]interface{}{
 		"msg": "Hello world!",
 	}, m)
@@ -31,9 +31,9 @@ func TestSerializeHole(t *testing.T) {
 		Lat:  25,
 		Long: 134,
 	}
-	s, m, err := render("Processed {@position} in {elapsed} ms", pos, 34)
+	msg, m, err := format("Processed {@position} in {elapsed} ms", pos, 34)
 	require.NoError(t, err)
-	assert.Equal(t, `Processed {"Lat":25,"Long":134} in 34 ms`, s)
+	assert.Equal(t, `Processed {"Lat":25,"Long":134} in 34 ms`, msg)
 	assert.Equal(t, map[string]interface{}{
 		"position": pos,
 		"elapsed":  34,

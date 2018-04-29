@@ -161,13 +161,16 @@ func isIndexRune(c rune) bool {
 	return c >= '0' && c <= '9'
 }
 
-func render(format string, v ...interface{}) (string, map[string]interface{}, error) {
+func format(format string, values ...interface{}) (string, map[string]interface{}, error) {
 	template, err := parse(format)
 	if err != nil {
 		return "", nil, fmt.Errorf("TODO: %v", err)
 	}
+	return render(template, values...)
+}
 
-	if len(template.holes) != len(v) {
+func render(template *template, values ...interface{}) (string, map[string]interface{}, error) {
+	if len(template.holes) != len(values) {
 		return "", nil, errors.New("TODO")
 	}
 
@@ -175,7 +178,7 @@ func render(format string, v ...interface{}) (string, map[string]interface{}, er
 	var bldr strings.Builder
 	var textIndex int
 	for i, h := range template.holes {
-		m[h.name] = v[i]
+		m[h.name] = values[i]
 
 		// Copy bytes from text buffer between the last hole (if any)
 		// and the current hole into the output builder
@@ -183,7 +186,7 @@ func render(format string, v ...interface{}) (string, map[string]interface{}, er
 		textIndex = h.textIndex
 
 		// Format value of hole and write to output builder
-		err := writeHoleFmt(&h, v[i], &bldr)
+		err := writeHoleFmt(&h, values[i], &bldr)
 		if err != nil {
 			return "", nil, fmt.Errorf("TODO: %v", err)
 		}

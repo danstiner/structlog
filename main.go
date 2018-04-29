@@ -19,7 +19,7 @@ func main() {
 		return
 	}
 
-	s, m, err := render("Hello {world} at {position}!", "Earth", struct {
+	msg, m, err := format("Hello {world} at {position}!", "Earth", struct {
 		Lat  float32
 		Long float32
 	}{
@@ -31,6 +31,6 @@ func main() {
 		fmt.Println(err)
 	}
 
-	fmt.Println(s)
+	fmt.Println(msg)
 	fmt.Println(m)
 }

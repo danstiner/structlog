@@ -1,14 +1,10 @@
 package slog
 
 type Logger interface {
-	Log(format string, v ...interface{})
-}
-
-type LeveledLogger interface {
-	Logger
-	Debug(format string, v ...interface{})
-	Info(format string, v ...interface{})
-	Warn(format string, v ...interface{})
-	Error(format string, v ...interface{})
-	WrapError(err error, format string, v ...interface{}) error
+	Debug(format string, values ...interface{})
+	Error(format string, values ...interface{})
+	Info(format string, values ...interface{})
+	Warn(format string, values ...interface{})
+	With(key, value interface{}) Logger
+	WrapError(err error, format string, values ...interface{}) error
 }

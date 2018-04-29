@@ -171,7 +171,7 @@ func Format(template string, values ...interface{}) (string, map[string]interfac
 
 func Render(template *Template, values ...interface{}) (string, map[string]interface{}, error) {
 	if len(template.holes) != len(values) {
-		return "", nil, errors.New("TODO")
+		return "", nil, errors.New("render TODO")
 	}
 
 	m := make(map[string]interface{})

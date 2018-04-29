@@ -1,4 +1,4 @@
-package main
+package messagetemplates
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type template struct {
+type Template struct {
 	text  []byte
 	holes []hole
 }
@@ -24,11 +24,11 @@ type hole struct {
 	textIndex int
 }
 
-func parse(format string) (*template, error) {
+func Parse(template string) (*Template, error) {
 	var buf bytes.Buffer
 	var holes []hole
 
-	reader := strings.NewReader(format)
+	reader := strings.NewReader(template)
 
 	// Template ::= ( Text | EscapedOpenBrace | Hole )*
 	for reader.Len() > 0 {
@@ -134,7 +134,7 @@ func parse(format string) (*template, error) {
 		holes = append(holes, hole)
 	}
 
-	return &template{
+	return &Template{
 		text:  buf.Bytes(),
 		holes: holes,
 	}, nil
@@ -161,15 +161,15 @@ func isIndexRune(c rune) bool {
 	return c >= '0' && c <= '9'
 }
 
-func format(format string, values ...interface{}) (string, map[string]interface{}, error) {
-	template, err := parse(format)
+func Format(template string, values ...interface{}) (string, map[string]interface{}, error) {
+	parsed, err := Parse(template)
 	if err != nil {
 		return "", nil, fmt.Errorf("TODO: %v", err)
 	}
-	return render(template, values...)
+	return Render(parsed, values...)
 }
 
-func render(template *template, values ...interface{}) (string, map[string]interface{}, error) {
+func Render(template *Template, values ...interface{}) (string, map[string]interface{}, error) {
 	if len(template.holes) != len(values) {
 		return "", nil, errors.New("TODO")
 	}

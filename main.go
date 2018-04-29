@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+
+	"github.com/danstiner/go-structlog/messagetemplates"
 )
 
 func main() {
@@ -19,7 +21,7 @@ func main() {
 		return
 	}
 
-	msg, m, err := format("Hello {world} at {position}!", "Earth", struct {
+	msg, m, err := messagetemplates.Format("Hello {world} at {position}!", "Earth", struct {
 		Lat  float32
 		Long float32
 	}{

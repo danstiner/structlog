@@ -1,4 +1,4 @@
-package main
+package messagetemplates
 
 import (
 	"testing"
@@ -8,16 +8,16 @@ import (
 )
 
 func TestNoHoles(t *testing.T) {
-	s, m, err := render("Message")
+	msg, m, err := Format("Message")
 	require.NoError(t, err)
-	assert.Equal(t, "Message", s)
+	assert.Equal(t, "Message", msg)
 	assert.Equal(t, map[string]interface{}{}, m)
 }
 
 func TestHole(t *testing.T) {
-	s, m, err := render("{msg}", "Hello world!")
+	msg, m, err := Format("{msg}", "Hello world!")
 	require.NoError(t, err)
-	assert.Equal(t, "Hello world!", s)
+	assert.Equal(t, "Hello world!", msg)
 	assert.Equal(t, map[string]interface{}{
 		"msg": "Hello world!",
 	}, m)
@@ -29,11 +29,11 @@ func TestSerializeHole(t *testing.T) {
 		Long float32
 	}{
 		Lat:  25,
-		Long: 134,
+		Long: 132,
 	}
-	s, m, err := render("Processed {@position} in {elapsed} ms", pos, 34)
+	msg, m, err := Format("Processed {@position} in {elapsed} ms", pos, 34)
 	require.NoError(t, err)
-	assert.Equal(t, `Processed {"Lat":25,"Long":134} in 34 ms`, s)
+	assert.Equal(t, `Processed {"Lat":25,"Long":132} in 34 ms`, msg)
 	assert.Equal(t, map[string]interface{}{
 		"position": pos,
 		"elapsed":  34,

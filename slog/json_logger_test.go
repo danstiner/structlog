@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -74,13 +73,4 @@ func TestJsonWith(t *testing.T) {
 	var buf bytes.Buffer
 	log := NewJsonLogger(&buf)
 	log.With("k", "v").With("k", "v")
-}
-
-func TestJsonErrorWrap(t *testing.T) {
-	var buf bytes.Buffer
-	log := NewJsonLogger(&buf)
-	err := errors.New("original error")
-	werr := log.WrapError(err, "additional context")
-	assert.Equal(t, err, errors.Cause(werr), "original cause should be preserved")
-	assert.Regexp(t, "additional context", werr.Error(), "wrap message should be added")
 }

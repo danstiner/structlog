@@ -2,9 +2,6 @@ package slog
 
 import (
 	"testing"
-
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNoopLogMethods(t *testing.T) {
@@ -18,11 +15,4 @@ func TestNoopLogMethods(t *testing.T) {
 func TestNoopWith(t *testing.T) {
 	log := NewNoopLogger()
 	log.With("k", "v").With("k", "v")
-}
-
-func TestNoopErrorWrap(t *testing.T) {
-	log := NewNoopLogger()
-	err := errors.New("error")
-	werr := log.WrapError(err, "additional context")
-	assert.Equal(t, err, werr, "No-op logger should not modify error")
 }

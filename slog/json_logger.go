@@ -5,7 +5,6 @@ import (
 	"io"
 
 	"github.com/danstiner/go-structlog/messagetemplates"
-	"github.com/pkg/errors"
 )
 
 type jsonLogger struct {
@@ -45,9 +44,6 @@ func (l jsonLogger) log(level string, format string, values ...interface{}) {
 
 func (l jsonLogger) With(key, value interface{}) Logger {
 	return l
-}
-func (l jsonLogger) WrapError(err error, format string, values ...interface{}) error {
-	return errors.Wrap(err, format)
 }
 
 func NewJsonLogger(w io.Writer) Logger {

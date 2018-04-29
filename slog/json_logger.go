@@ -9,6 +9,7 @@ import (
 
 type jsonLogger struct {
 	writer io.Writer
+	with   []KeyValue
 }
 
 func (l jsonLogger) Debug(format string, values ...interface{}) {
@@ -28,6 +29,11 @@ func (l jsonLogger) log(level string, format string, values ...interface{}) {
 	if err != nil {
 		panic(err)
 	}
+
+	for _, kv := range l.with {
+		m[kv.key] = kv.value
+	}
+
 	m["@level"] = level
 	m["@message"] = msg
 	m["@template"] = format
@@ -42,7 +48,8 @@ func (l jsonLogger) log(level string, format string, values ...interface{}) {
 	}
 }
 
-func (l jsonLogger) With(key, value interface{}) Logger {
+func (l jsonLogger) With(key string, value interface{}) Logger {
+	l.with = append(l.with, KV(key, value))
 	return l
 }
 

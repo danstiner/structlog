@@ -10,7 +10,7 @@ func (l noopLogger) Info(format string, values ...interface{}) {
 }
 func (l noopLogger) Warn(format string, values ...interface{}) {
 }
-func (l noopLogger) With(key, value interface{}) Logger {
+func (l noopLogger) With(key string, value interface{}) Logger {
 	return l
 }
 

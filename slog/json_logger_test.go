@@ -72,5 +72,15 @@ func TestJsonWarn(t *testing.T) {
 func TestJsonWith(t *testing.T) {
 	var buf bytes.Buffer
 	log := NewJsonLogger(&buf)
-	log.With("k", "v").With("k", "v")
+
+	log.With("k", "v").Warn("message")
+
+	var m map[string]interface{}
+	require.NoError(t, json.Unmarshal(buf.Bytes(), &m))
+	assert.Equal(t, map[string]interface{}{
+		"@level":    "WARN",
+		"@message":  "message",
+		"@template": "message",
+		"k":         "v",
+	}, m)
 }

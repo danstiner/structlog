@@ -102,12 +102,12 @@ func TestJsonSerializeHole(t *testing.T) {
 	require.NoError(t, json.Unmarshal(buf.Bytes(), &m))
 	assert.Equal(t, map[string]interface{}{
 		"@level":    "INFO",
-		"@message":  `Processed {"Lat":25,"Long":132} in 34 ms`,
+		"@message":  `Processed {"lat":25,"lng":132} in 34 ms`,
 		"@template": "Processed {@position} in {elapsed} ms",
-		"elapsed":   34,
+		"elapsed":   34.0,
 		"position": map[string]interface{}{
-			"lat": 25,
-			"lng": 132,
+			"lat": 25.0,
+			"lng": 132.0,
 		},
 	}, m)
 }

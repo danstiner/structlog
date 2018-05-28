@@ -14,7 +14,7 @@ help:
 	@echo
 	@echo 'Usage:'
 	@echo '    make build           Compile the project.'
-	@echo '    make get-deps        runs glide install, mostly used for ci.'
+	@echo '    make get-deps        runs dep ensure, mostly used for ci.'
 	
 	@echo '    make clean           Clean the directory tree.'
 	@echo
@@ -25,11 +25,11 @@ build:
 	go build -ldflags "-X main.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X main.VersionPrerelease=DEV" -o bin/${BIN_NAME}
 
 get-deps:
-	glide install
+	dep ensure
 
 clean:
 	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
 
 test:
-	go test $(glide nv)
+	go test ./...
 

@@ -16,3 +16,7 @@ $ ./bin/go-structlog
 ### Testing
 
 ``make test``
+
+### Benchmarking
+
+``make bench``

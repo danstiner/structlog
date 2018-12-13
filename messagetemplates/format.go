@@ -1,143 +1,183 @@
 package messagetemplates
 
 import (
-	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
+// Template represents a parsed template string that can be rendered
 type Template struct {
-	text  []byte
-	holes []hole
+	holeCount int // number of holes for values present in the template
+	length    int // length of the original template string
+	parts     []part
 }
 
-type hole struct {
-	alignment int
-	argIndex  int
-	name      string
-	serialize bool
-	stringify bool
-	textIndex int
+type kind int
+
+const (
+	stringPart    = iota
+	serializeHole = iota
+	stringifyHole = iota
+)
+
+type part struct {
+	argIndex int
+	kind     kind
+
+	// for a hole part, this string is the name of the hole
+	// for a string part, this is the string itself
+	string string
 }
 
-func Parse(template string) (*Template, error) {
-	var buf bytes.Buffer
-	var holes []hole
+// Format parses a template string and then renders it with the given values
+func Format(template string, values ...interface{}) (string, map[string]interface{}, error) {
+	parsed, err := Parse(template)
+	if err != nil {
+		return "", nil, fmt.Errorf("TODO: %v", err)
+	}
+	return Render(parsed, values...)
+}
 
+// Parse takes a template string and produces a renderable Template
+func Parse(template string) (Template, error) {
+	var argIndex int
+	var lastIndex int
+	var index int
+	var holeCount int
+
+	length := len(template)
+	parts := make([]part, 0, strings.Count(template, "{")*2+1)
 	reader := strings.NewReader(template)
 
 	// Template ::= ( Text | EscapedOpenBrace | Hole )*
 	for reader.Len() > 0 {
-		ch, _, _ := reader.ReadRune()
-		if ch != '{' {
+		r, s, _ := reader.ReadRune()
+		index += s
+
+		if r != '{' {
 			// Text ::= [^\{]
-			buf.WriteRune(ch)
 			continue
 		}
 
 		if reader.Len() == 0 {
-			return nil, errors.New("unclosed opening brace")
+			return Template{}, errors.New("unclosed opening brace")
 		}
 
-		ch, _, _ = reader.ReadRune()
-		if ch == '{' {
+		parts = append(parts, part{
+			kind:   stringPart,
+			string: template[lastIndex : index-1],
+		})
+		lastIndex = index
+
+		r, s, _ = reader.ReadRune()
+		index += s
+		if r == '{' {
 			// EscapedOpenBrace :: = '{{'
-			_, _ = buf.WriteRune('{')
-			_, _ = buf.WriteRune('{')
 			continue
 		}
 
 		// Hole ::=  '{' Operator? Id (',' Alignment)? (':' Format)? '}'
-		i, _ := reader.Seek(0, io.SeekCurrent)
-		hole := hole{
-			argIndex:  len(holes),
-			textIndex: buf.Len(),
+		hole := part{
+			argIndex: argIndex,
+			kind:     stringifyHole,
 		}
+		argIndex++
 
 		// Operator ::= ('@' | '$')?
-		if ch == '@' || ch == '$' {
-			hole.serialize = ch == '@'
-			hole.stringify = ch == '$'
-			ch, _, _ = reader.ReadRune()
+		if r == '@' {
+			hole.kind = serializeHole
+			lastIndex = index
+			r, s, _ = reader.ReadRune()
+			index += s
 			if reader.Len() == 0 {
-				return nil, errors.New("unexpected end of Hole")
+				return Template{}, errors.New("unexpected end of Hole")
+			}
+		} else if r == '$' {
+			hole.kind = stringifyHole
+			lastIndex = index
+			r, s, _ = reader.ReadRune()
+			index += s
+			if reader.Len() == 0 {
+				return Template{}, errors.New("unexpected end of Hole")
 			}
 		}
 
 		// Id ::= (Name | Index)
 		// Name ::= [0-9A-z_]+
 		// Index::= [0-9]+
-		var id strings.Builder
 		var isIndex = true
-		i, _ = reader.Seek(0, io.SeekCurrent)
+		var j = index
 		for reader.Len() > 0 {
-			if !isNameRune(ch) {
+			if !isNameRune(r) {
 				break
 			}
-			_, _ = id.WriteRune(ch)
-			isIndex = isIndex && isIndexRune(ch)
-			ch, _, _ = reader.ReadRune()
+			isIndex = isIndex && isIndexRune(r)
+			j = index
+			r, s, _ = reader.ReadRune()
+			index += s
 		}
 
-		j, _ := reader.Seek(0, io.SeekCurrent)
-
-		if i == j {
-			return nil, errors.New("Name/Index must have at least one character")
+		if lastIndex == index {
+			return Template{}, errors.New("Name/Index must have at least one character")
 		}
 
-		if ch != ',' && ch != ':' && ch != '}' {
+		if r != ',' && r != ':' && r != '}' {
 			var holeType string
 			if isIndex {
 				holeType = "Index"
 			} else {
 				holeType = "Name"
 			}
-			return nil, fmt.Errorf("unexpected end of %s", holeType)
+			return Template{}, fmt.Errorf("unexpected end of %s", holeType)
 		}
 
-		hole.name = id.String()
-		i = j
+		hole.string = template[lastIndex:j]
+		lastIndex = index
 
 		if isIndex {
 			var err error
-			hole.argIndex, err = strconv.Atoi(hole.name)
+			hole.argIndex, err = strconv.Atoi(hole.string)
 			if err != nil {
-				return nil, fmt.Errorf("TODO: %v", err)
+				return Template{}, fmt.Errorf("TODO: %v", err)
 			}
 		}
 
 		// (',' Alignment)?
-		if ch == ',' {
+		if r == ',' {
 			// Alignment ::= '-'?[0-9]+
 
 			// TODO
-			return nil, errors.New("Alignment specifier not yet implemented")
+			return Template{}, errors.New("Alignment specifier not yet implemented")
 		}
 
 		// (':' Format)?
-		if ch == ':' {
+		if r == ':' {
 			// Format ::= [^\{]+
 
 			// TODO Format will require back-tracking
-			return nil, errors.New("Format specifier not yet implemented")
+			return Template{}, errors.New("Format specifier not yet implemented")
 		}
 
 		// '}'
-		if ch != '}' {
-			return nil, errors.New("unexpected character at end of Hole")
+		if r != '}' {
+			return Template{}, errors.New("unexpected character at end of Hole")
 		}
 
-		holes = append(holes, hole)
+		parts = append(parts, hole)
+		lastIndex = index
+		holeCount++
 	}
 
-	return &Template{
-		text:  buf.Bytes(),
-		holes: holes,
-	}, nil
+	parts = append(parts, part{
+		kind:   stringPart,
+		string: template[lastIndex:],
+	})
+
+	return Template{holeCount, length, parts}, nil
 }
 
 // Name ::= [0-9A-z_]+
@@ -161,52 +201,47 @@ func isIndexRune(c rune) bool {
 	return c >= '0' && c <= '9'
 }
 
-func Format(template string, values ...interface{}) (string, map[string]interface{}, error) {
-	parsed, err := Parse(template)
-	if err != nil {
-		return "", nil, fmt.Errorf("TODO: %v", err)
-	}
-	return Render(parsed, values...)
-}
-
-func Render(template *Template, values ...interface{}) (string, map[string]interface{}, error) {
-	if len(template.holes) != len(values) {
-		return "", nil, errors.New("render TODO")
+func Render(template Template, values ...interface{}) (string, map[string]interface{}, error) {
+	if template.holeCount != len(values) {
+		return "", nil, errors.Errorf("Template has %d holes for values but %d values were passed", template.holeCount, len(values))
 	}
 
-	m := make(map[string]interface{})
+	m := make(map[string]interface{}, template.holeCount+1)
 	var bldr strings.Builder
-	var textIndex int
-	for i, h := range template.holes {
-		m[h.name] = values[i]
 
-		// Copy bytes from text buffer between the last hole (if any)
-		// and the current hole into the output builder
-		_, _ = bldr.Write(template.text[textIndex:h.textIndex])
-		textIndex = h.textIndex
+	// Heuristic for a reasonable starting capacity
+	bldr.Grow(template.length)
 
-		// Format value of hole and write to output builder
-		err := writeHoleFmt(&h, values[i], &bldr)
-		if err != nil {
-			return "", nil, fmt.Errorf("TODO: %v", err)
+	for _, part := range template.parts {
+		if part.kind == stringPart {
+			bldr.WriteString(part.string)
+			continue
+		}
+
+		v := values[part.argIndex]
+
+		m[part.string] = v
+
+		switch part.kind {
+		case stringifyHole:
+			switch v := v.(type) {
+			case int:
+				bldr.WriteString(strconv.Itoa(v))
+			case string:
+				bldr.WriteString(v)
+			default:
+				bldr.WriteString(fmt.Sprintf("%v", v))
+			}
+		case serializeHole:
+			bytes, err := json.Marshal(v)
+			if err != nil {
+				return "", nil, err
+			}
+			_, _ = bldr.Write(bytes)
+		default:
+			return "", nil, errors.New("Unknown hole type")
 		}
 	}
-
-	// Copy remaining bytes from text buffer
-	_, _ = bldr.Write(template.text[textIndex:])
 
 	return bldr.String(), m, nil
-}
-
-func writeHoleFmt(h *hole, v interface{}, b *strings.Builder) error {
-	if h.serialize {
-		bytes, err := json.Marshal(v)
-		if err != nil {
-			return fmt.Errorf("TODO: %v", err)
-		}
-		_, err = b.Write(bytes)
-		return err
-	}
-	_, err := b.WriteString(fmt.Sprintf("%v", v))
-	return err
 }

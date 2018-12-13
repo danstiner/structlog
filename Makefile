@@ -1,4 +1,4 @@
-.PHONY: build build-alpine clean test help default
+.PHONY: build build-alpine clean test bench help default
 
 BIN_NAME=go-structlog
 
@@ -33,3 +33,10 @@ clean:
 test:
 	go test ./...
 
+bench:
+	go test -bench=. ./...
+
+profile:
+	go test -cpuprofile cpu.prof -memprofile mem.prof -bench=Format10Fields github.com/danstiner/go-structlog/messagetemplates
+	go tool pprof --pdf cpu.prof
+	go tool pprof --pdf mem.prof

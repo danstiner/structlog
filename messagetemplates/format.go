@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	structlog "github.com/danstiner/go-structlog"
 	"github.com/pkg/errors"
 )
 
@@ -34,7 +35,7 @@ type part struct {
 }
 
 // Format parses a template string and then renders it with the given values
-func Format(template string, values ...interface{}) (string, map[string]interface{}, error) {
+func Format(template string, values ...interface{}) (string, []structlog.KV, error) {
 	parsed, err := Parse(template)
 	if err != nil {
 		return "", nil, fmt.Errorf("TODO: %v", err)
@@ -201,12 +202,12 @@ func isIndexRune(c rune) bool {
 	return c >= '0' && c <= '9'
 }
 
-func Render(template Template, values ...interface{}) (string, map[string]interface{}, error) {
+func Render(template Template, values ...interface{}) (string, []structlog.KV, error) {
 	if template.holeCount != len(values) {
 		return "", nil, errors.Errorf("Template has %d holes for values but %d values were passed", template.holeCount, len(values))
 	}
 
-	m := make(map[string]interface{}, template.holeCount+1)
+	kv := make([]structlog.KV, 0, template.holeCount)
 	var bldr strings.Builder
 
 	// Heuristic for a reasonable starting capacity
@@ -219,8 +220,7 @@ func Render(template Template, values ...interface{}) (string, map[string]interf
 		}
 
 		v := values[part.argIndex]
-
-		m[part.string] = v
+		kv = append(kv, structlog.KV{Key: part.string, Value: v})
 
 		switch part.kind {
 		case stringifyHole:
@@ -243,5 +243,5 @@ func Render(template Template, values ...interface{}) (string, map[string]interf
 		}
 	}
 
-	return bldr.String(), m, nil
+	return bldr.String(), kv, nil
 }

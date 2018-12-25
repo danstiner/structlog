@@ -51,7 +51,8 @@ func Parse(template string) (Template, error) {
 	var holeCount int
 
 	length := len(template)
-	parts := make([]part, 0, strings.Count(template, "{")*2+1)
+	parts_heuristic := strings.Count(template, "{")*2 + 1
+	parts := make([]part, 0, parts_heuristic)
 	reader := strings.NewReader(template)
 
 	// Template ::= ( Text | EscapedOpenBrace | Hole )*

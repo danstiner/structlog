@@ -1,5 +1,6 @@
 package structlog
 
 type KV struct {
-	Key, Value interface{}
+	Key   string
+	Value interface{}
 }

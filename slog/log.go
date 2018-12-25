@@ -53,7 +53,7 @@ func (l Logger) Level(level Level) Logger {
 	return l
 }
 
-func (l Logger) With(key, value interface{}) Logger {
+func (l Logger) With(key string, value interface{}) Logger {
 	l.context = append(l.context, structlog.KV{key, value})
 	return l
 }
@@ -78,14 +78,12 @@ func (l *Logger) Panic(template string, values ...interface{}) {
 
 func (l *Logger) event(level Level, template string, values ...interface{}) Event {
 	data := l.context
-	message, m, err := messagetemplates.Format(template, values...)
+	message, kv, err := messagetemplates.Format(template, values...)
 	if err != nil {
 		panic(err)
 	}
 
-	for k, v := range m {
-		data = append(data, structlog.KV{k, v})
-	}
+	data = append(data, kv...)
 
 	return Event{
 		data,

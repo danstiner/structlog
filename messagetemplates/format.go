@@ -51,8 +51,8 @@ func Parse(template string) (Template, error) {
 	var holeCount int
 
 	length := len(template)
-	parts_heuristic := strings.Count(template, "{")*2 + 1
-	parts := make([]part, 0, parts_heuristic)
+	partsHeuristic := strings.Count(template, "{")*2 + 1
+	parts := make([]part, 0, partsHeuristic)
 	reader := strings.NewReader(template)
 
 	// Template ::= ( Text | EscapedOpenBrace | Hole )*
@@ -209,14 +209,11 @@ func Render(template Template, values ...interface{}) (string, []structlog.KV, e
 	}
 
 	kv := make([]structlog.KV, 0, template.holeCount)
-	var bldr strings.Builder
-
-	// Heuristic for a reasonable starting capacity
-	bldr.Grow(template.length)
+	bldr := makeBuilder(template.length)
 
 	for _, part := range template.parts {
 		if part.kind == stringPart {
-			bldr.WriteString(part.string)
+			bldr.writeString(part.string)
 			continue
 		}
 
@@ -227,22 +224,22 @@ func Render(template Template, values ...interface{}) (string, []structlog.KV, e
 		case stringifyHole:
 			switch v := v.(type) {
 			case int:
-				bldr.WriteString(strconv.Itoa(v))
+				bldr.writeInt(int64(v))
 			case string:
-				bldr.WriteString(v)
+				bldr.writeString(v)
 			default:
-				bldr.WriteString(fmt.Sprintf("%v", v))
+				bldr.writeString(fmt.Sprintf("%v", v))
 			}
 		case serializeHole:
 			bytes, err := json.Marshal(v)
 			if err != nil {
 				return "", nil, err
 			}
-			_, _ = bldr.Write(bytes)
+			bldr.write(bytes)
 		default:
 			return "", nil, errors.New("Unknown hole type")
 		}
 	}
 
-	return bldr.String(), kv, nil
+	return bldr.string(), kv, nil
 }

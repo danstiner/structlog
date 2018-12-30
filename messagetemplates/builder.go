@@ -5,7 +5,8 @@ import (
 	"unsafe"
 )
 
-// Specialized string builder for maximum efficiency
+// String builder specialized for this library. Similar to `strings.Builder`
+// but allows specifying a starting capacity and other performance improvements.
 type builder struct {
 	buf []byte
 }

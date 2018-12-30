@@ -4,7 +4,7 @@ Structured logger for Go using the [message templates](https://messagetemplates.
 
 ## Motivation
 
-Structured logging is a great way to capture useful context when logging. [Serilog](https://serilog.net/) is a hugely popular C# library with a clean and concise message format, this library brings [that format]((https://messagetemplates.org/) to Go.
+Structured logging makes it easier to search and extract useful information from your logs. In Go this is usually accomplished by passing key-value pairs to your logger in addition to a string message. This library instead derives key names from a message format itself which gives concise and readable logging statements.
 
 ## Example
 
@@ -14,16 +14,16 @@ import (
     "github.com/danstiner/structlog/sink"
 )
 
-type Position struct {
+type Coordinates struct {
     Latitude, Longitude float64
 }
 
 log := structlog.New(sink.Json{os.Stdout})
 
-log.Info("Processed {@position} in {elapsed} ms", Position{25, 132}, 34)
+log.Info("Processed {@position} in {elapsed} ms", Coordinates{25, 132}, 34)
 ```
 
-Output:
+Formatted output:
 
 ```json
 {
@@ -38,11 +38,10 @@ Output:
 
 Some benefits of this approach:
 
-- No passing key-value structs or matching up pairs of key-value parameters
-- Key names are derived from the message template
-- The formatting is straightforward, a similar result could be achieved with `fmt.Sprintf`
-- Optionally `@` can be used to format the value as a JSON string
-- The template string can be used with `grep` to find the line of source code that logged
+- Values are included in both the message and structured data without repeating yourself
+- No awkward syntax for passing key-value pairs as structs or arguments that alternate between keys and values
+- The template is logged to enable both aggregation and use of `grep` to find which line of code a log originated from
+- `@` can be used to format a value as a JSON string using reflection
 
 ## Interface
 
@@ -59,7 +58,7 @@ type Logger struct {
 
 ## Contributing
 
-Contributions are welcomed, please open an issue or send a pull-request.
+Contributions are welcome, please open an issue or send a pull-request.
 
 ### Testing
 

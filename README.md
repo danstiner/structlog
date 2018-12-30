@@ -70,5 +70,5 @@ Contributions are welcome, please open an issue or send a pull-request.
 
 [doc-img]: https://godoc.org/github.com/danstiner/structlog?status.svg
 [doc]: https://godoc.org/github.com/danstiner/structlog
-[ci-img]: https://travis-ci.org/danstiner/go-structlog.svg?branch=master
-[ci]: https://travis-ci.org/danstiner/go-structlog
+[ci-img]: https://travis-ci.org/danstiner/structlog.svg?branch=master
+[ci]: https://travis-ci.org/danstiner/structlog

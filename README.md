@@ -57,8 +57,6 @@ type Logger struct {
 }
 ```
 
-TODO Justify choice of methods https://winderresearch.com/logging-vs-tracing-vs-monitoring/
-
 ## Contributing
 
 Contributions are welcomed, please open an issue or send a pull-request.

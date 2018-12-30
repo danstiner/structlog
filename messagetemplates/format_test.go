@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	structlog "github.com/danstiner/go-structlog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -28,15 +29,15 @@ func TestFormatString(t *testing.T) {
 	msg, m, err := Format("Message")
 	require.NoError(t, err)
 	assert.Equal(t, "Message", msg)
-	assert.Equal(t, map[string]interface{}{}, m)
+	assert.Equal(t, []structlog.KV{}, m)
 }
 
 func TestFormatHole(t *testing.T) {
 	msg, m, err := Format("{msg}", "Hello world!")
 	require.NoError(t, err)
 	assert.Equal(t, "Hello world!", msg)
-	assert.Equal(t, map[string]interface{}{
-		"msg": "Hello world!",
+	assert.Equal(t, []structlog.KV{
+		{"msg", "Hello world!"},
 	}, m)
 }
 
@@ -51,8 +52,8 @@ func TestFormatSerializeHole(t *testing.T) {
 	msg, m, err := Format("Processed {@position}", pos)
 	require.NoError(t, err)
 	assert.Equal(t, `Processed {"Lat":25,"Long":132}`, msg)
-	assert.Equal(t, map[string]interface{}{
-		"position": pos,
+	assert.Equal(t, []structlog.KV{
+		{"position", pos},
 	}, m)
 }
 
@@ -69,7 +70,7 @@ func TestFormatTooManyArgs(t *testing.T) {
 // always store the result to a package level variable
 // so the compiler cannot eliminate the Benchmark itself.
 var result string
-var resultMap map[string]interface{}
+var resultMap []structlog.KV
 
 func BenchmarkSprintfString(b *testing.B) {
 	for n := 0; n < b.N; n++ {

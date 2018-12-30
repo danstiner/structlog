@@ -38,7 +38,7 @@ Output:
 
 Some benefits of this approach:
 
-- Avoids the need to pass key-value structs or match up alternating key and value parameters
+- No passing key-value structs or matching up pairs of key-value parameters
 - Key names are derived from the message template
 - The formatting is straightforward, a similar result could be achieved with `fmt.Sprintf`
 - Optionally `@` can be used to format the value as a JSON string

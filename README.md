@@ -30,7 +30,7 @@ Formatted output:
   "$level":"INFO",
   "$message":"Processed {\"Latitude\":25,\"Longitude\":132} in 34 ms",
   "$template":"Processed {@position} in {elapsed} ms",
-  "$timestamp":"2018-12-30T04:23:15Z",
+  "$timestamp":"2228-03-22T12:34:56Z",
   "elapsed":34,
   "position":{"Latitude":25,"Longitude":132}
 }

@@ -4,7 +4,7 @@ Structured logger for Go using the [message templates](https://messagetemplates.
 
 ## Motivation
 
-Structured logging makes it easier to search and extract useful information from your logs. In Go this is usually accomplished by passing key-value pairs to your logger in addition to a string message. This library instead derives key names from a message format itself which gives concise and readable logging statements.
+Structured logging makes it easier to search and extract useful information from your logs. In Go this is usually accomplished by passing key-value pairs to your logger in addition to a string message. This library instead embeddeds the key names in a message format string, an approach originally from the [Serilog](https://serilog.net/) library for C#.
 
 ## Example
 

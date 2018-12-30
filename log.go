@@ -1,11 +1,21 @@
-package slog
+package structlog
 
 import (
 	"fmt"
 
-	structlog "github.com/danstiner/go-structlog"
-	"github.com/danstiner/go-structlog/messagetemplates"
+	"github.com/danstiner/structlog/messagetemplates"
 )
+
+func New(sink Sink) Logger {
+	return Logger{
+		Sink: sink,
+	}
+}
+
+type Logger struct {
+	Context []messagetemplates.KV
+	Sink    Sink
+}
 
 type Level int
 
@@ -31,53 +41,42 @@ func (l Level) String() string {
 	}
 }
 
-type Event struct {
-	data     []structlog.KV
-	level    Level
-	message  string
-	template string
-}
-
-type LogSink interface {
+type Sink interface {
 	Log(event Event)
 }
 
-type Logger struct {
-	context []structlog.KV
-	level   Level
-	sink    LogSink
-}
-
-func (l Logger) Level(level Level) Logger {
-	l.level = level
-	return l
+type Event struct {
+	Data     []messagetemplates.KV
+	Level    Level
+	Message  string
+	Template string
 }
 
 func (l Logger) With(key string, value interface{}) Logger {
-	l.context = append(l.context, structlog.KV{key, value})
+	l.Context = append(l.Context, messagetemplates.KV{Key: key, Value: value})
 	return l
 }
 
 func (l *Logger) Trace(template string, values ...interface{}) {
-	l.sink.Log(l.event(TraceLevel, template, values...))
+	l.Sink.Log(l.event(TraceLevel, template, values...))
 }
 
 func (l *Logger) Info(template string, values ...interface{}) {
-	l.sink.Log(l.event(InfoLevel, template, values...))
+	l.Sink.Log(l.event(InfoLevel, template, values...))
 }
 
 func (l *Logger) Error(template string, values ...interface{}) {
-	l.sink.Log(l.event(ErrorLevel, template, values...))
+	l.Sink.Log(l.event(ErrorLevel, template, values...))
 }
 
 func (l *Logger) Panic(template string, values ...interface{}) {
 	event := l.event(PanicLevel, template, values...)
-	l.sink.Log(event)
+	l.Sink.Log(event)
 	panic(event)
 }
 
 func (l *Logger) event(level Level, template string, values ...interface{}) Event {
-	data := l.context
+	data := l.Context
 	message, kv, err := messagetemplates.Format(template, values...)
 	if err != nil {
 		panic(err)

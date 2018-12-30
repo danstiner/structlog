@@ -4,7 +4,27 @@
 
 Structured message template logs for Golang
 
-## Getting started
+## Usage
+
+```go
+package example
+
+import "google.golang.org/genproto/googleapis/type/latlng"
+
+var log = structlog.New(sink.Json{os.Stdout})
+
+func Example() {
+    log.Info("Processed {@position} in {elapsed} ms", latlng.LatLng{25, 132}, 34)
+}
+```
+
+```json
+{
+
+}
+```
+
+## Contributing
 
 This project requires Go to be installed. On OS X with Homebrew you can just run `brew install go`.
 
@@ -12,7 +32,6 @@ Running it then should be as simple as:
 
 ```console
 $ make
-$ ./bin/go-structlog
 ```
 
 ### Testing

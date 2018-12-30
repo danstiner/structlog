@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	structlog "github.com/danstiner/go-structlog"
 	"github.com/pkg/errors"
 )
 
@@ -35,7 +34,7 @@ type part struct {
 }
 
 // Format parses a template string and then renders it with the given values
-func Format(template string, values ...interface{}) (string, []structlog.KV, error) {
+func Format(template string, values ...interface{}) (string, []KV, error) {
 	parsed, err := Parse(template)
 	if err != nil {
 		return "", nil, fmt.Errorf("TODO: %v", err)
@@ -203,12 +202,12 @@ func isIndexRune(c rune) bool {
 	return c >= '0' && c <= '9'
 }
 
-func Render(template Template, values ...interface{}) (string, []structlog.KV, error) {
+func Render(template Template, values ...interface{}) (string, []KV, error) {
 	if template.holeCount != len(values) {
 		return "", nil, errors.Errorf("Template has %d holes for values but %d values were passed", template.holeCount, len(values))
 	}
 
-	kv := make([]structlog.KV, 0, template.holeCount)
+	kv := make([]KV, 0, template.holeCount)
 	bldr := makeBuilder(template.length)
 
 	for _, part := range template.parts {
@@ -218,7 +217,7 @@ func Render(template Template, values ...interface{}) (string, []structlog.KV, e
 		}
 
 		v := values[part.argIndex]
-		kv = append(kv, structlog.KV{Key: part.string, Value: v})
+		kv = append(kv, KV{Key: part.string, Value: v})
 
 		switch part.kind {
 		case stringifyHole:

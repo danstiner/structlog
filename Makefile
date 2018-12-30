@@ -20,7 +20,7 @@ help:
 	@echo '    make profile         Capture CPU and memory profiles for a common operation.'
 
 build:
-	@echo "building ${BIN_NAME}
+	@echo "building ${BIN_NAME}"
 	@echo "GOPATH=${GOPATH}"
 	go build -ldflags "-X main.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X main.VersionPrerelease=DEV" -o bin/${BIN_NAME}
 

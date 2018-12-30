@@ -1,4 +1,4 @@
-package structlog
+package messagetemplates
 
 type KV struct {
 	Key   string

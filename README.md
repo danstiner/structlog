@@ -1,4 +1,4 @@
-# structlog [![GoDoc][doc-img]][doc] [![Build Status][ci-img]][ci] [![FOSSA Status][fossa-img]][fossa]
+# structlog [![GoDoc][doc-img]][doc] [![Build Status][ci-img]][ci]
 
 Structured logger for Go using the [message templates](https://messagetemplates.org/) format.
 
@@ -77,5 +77,3 @@ While this library does not aim to win against speed-centric loggers like [zap](
 [doc]: https://godoc.org/github.com/danstiner/structlog
 [ci-img]: https://travis-ci.org/danstiner/go-structlog.svg?branch=master
 [ci]: https://travis-ci.org/danstiner/go-structlog
-[fossa-img]: https://app.fossa.io/api/projects/git+github.com/danstiner/structlog.svg?type=shield
-[fossa]: https://app.fossa.io/projects/git+github.com/danstiner/structlog?ref=badge_shield

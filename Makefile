@@ -13,10 +13,11 @@ help:
 	@echo
 	@echo 'Usage:'
 	@echo '    make build           Compile the project.'
-	@echo '    make get-deps        runs dep ensure, mostly used for ci.'
-	
-	@echo '    make clean           Clean the directory tree.'
-	@echo
+	@echo '    make get-deps        Run dep ensure, mostly used for ci.'
+	@echo '    make clean           Delete any generated code and binaries.'
+	@echo '    make test            Run tests.'
+	@echo '    make bench           Run benchmarks.'
+	@echo '    make profile         Capture CPU and memory profiles for a common operation.'
 
 build:
 	@echo "building ${BIN_NAME}

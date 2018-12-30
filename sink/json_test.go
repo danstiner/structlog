@@ -15,7 +15,7 @@ import (
 
 func TestJsonLevel(t *testing.T) {
 	const expected = structlog.InfoLevel
-	const key = "@level"
+	const key = "$level"
 	var buf bytes.Buffer
 	log := NewJson(&buf)
 
@@ -32,7 +32,7 @@ func TestJsonLevel(t *testing.T) {
 
 func TestJsonMessage(t *testing.T) {
 	const expected = "hello world"
-	const key = "@message"
+	const key = "$message"
 	var buf bytes.Buffer
 	log := NewJson(&buf)
 
@@ -76,7 +76,7 @@ func TestJsonStructData(t *testing.T) {
 func TestJsonTimestamp(t *testing.T) {
 	now := time.Now()
 	expected := now.Truncate(time.Second)
-	const key = "@timestamp"
+	const key = "$timestamp"
 	var buf bytes.Buffer
 	sink := NewJson(&buf)
 

@@ -24,10 +24,10 @@ func (s Json) Log(event structlog.Event) {
 		m[fmt.Sprintf("%v", datum.Key)] = datum.Value
 	}
 
-	m["@level"] = event.Level.String()
-	m["@message"] = event.Message
-	m["@template"] = event.Template
-	m["@timestamp"] = event.Timestamp.UTC().Format(time.RFC3339)
+	m["$level"] = event.Level.String()
+	m["$message"] = event.Message
+	m["$template"] = event.Template
+	m["$timestamp"] = event.Timestamp.UTC().Format(time.RFC3339)
 
 	bytes, err := json.Marshal(m)
 	if err != nil {

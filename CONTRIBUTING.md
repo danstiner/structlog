@@ -8,7 +8,7 @@ You can contribute in many ways:
 
 ### Report Bugs
 
-Report bugs at https://github.com/danstiner/go-structlog/issues.
+Report bugs at https://github.com/danstiner/structlog/issues.
 
 If you are reporting a bug, please include:
 
@@ -28,13 +28,13 @@ is open to whoever wants to implement it.
 
 ### Write Documentation
 
-go-structlog could always use more documentation, whether as part of the
-official go-structlog docs, in docstrings, or even on the web in blog posts,
+structlog could always use more documentation, whether as part of the
+official structlog docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 ### Submit Feedback
 
-The best way to send feedback is to file an issue at https://github.com/danstiner/go-structlog/issues.
+The best way to send feedback is to file an issue at https://github.com/danstiner/structlog/issues.
 
 If you are proposing a feature:
 
@@ -45,12 +45,12 @@ If you are proposing a feature:
 
 ## Get Started!
 
-Ready to contribute? Here's how to set up `go-structlog` for local development.
+Ready to contribute? Here's how to set up `structlog` for local development.
 
-1. Fork the `go-structlog` repo on GitHub.
+1. Fork the `structlog` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/go-structlog.git
+    $ git clone git@github.com:your_name_here/structlog.git
 
 3. Create a branch for local development::
 

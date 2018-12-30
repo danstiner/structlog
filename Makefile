@@ -1,15 +1,15 @@
 .PHONY: build build-alpine clean test bench help default
 
-BIN_NAME=go-structlog
+BIN_NAME=structlog
 
 GIT_COMMIT=$(shell git rev-parse HEAD)
 GIT_DIRTY=$(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
-IMAGE_NAME := "danstiner/go-structlog"
+IMAGE_NAME := "danstiner/structlog"
 
 default: test
 
 help:
-	@echo 'Management commands for go-structlog:'
+	@echo 'Management commands for structlog:'
 	@echo
 	@echo 'Usage:'
 	@echo '    make build           Compile the project.'
@@ -37,6 +37,6 @@ bench:
 	go test -bench=. ./...
 
 profile:
-	go test -gcflags=-m -cpuprofile cpu.prof -memprofile mem.prof -bench=Format10Fields github.com/danstiner/go-structlog/messagetemplates
+	go test -gcflags=-m -cpuprofile cpu.prof -memprofile mem.prof -bench=Format10Fields github.com/danstiner/structlog/messagetemplates
 	go tool pprof --pdf cpu.prof
 	go tool pprof --pdf mem.prof

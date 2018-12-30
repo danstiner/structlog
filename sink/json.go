@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/danstiner/structlog"
 )
@@ -26,6 +27,7 @@ func (s Json) Log(event structlog.Event) {
 	m["@level"] = event.Level.String()
 	m["@message"] = event.Message
 	m["@template"] = event.Template
+	m["@timestamp"] = event.Timestamp.UTC().Format(time.RFC3339)
 
 	bytes, err := json.Marshal(m)
 	if err != nil {

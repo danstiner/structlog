@@ -2,6 +2,7 @@ package structlog
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/danstiner/structlog/messagetemplates"
 )
@@ -46,10 +47,11 @@ type Sink interface {
 }
 
 type Event struct {
-	Data     []messagetemplates.KV
-	Level    Level
-	Message  string
-	Template string
+	Data      []messagetemplates.KV
+	Level     Level
+	Message   string
+	Template  string
+	Timestamp time.Time
 }
 
 func (l Logger) With(key string, value interface{}) Logger {
@@ -76,12 +78,12 @@ func (l *Logger) Panic(template string, values ...interface{}) {
 }
 
 func (l *Logger) event(level Level, template string, values ...interface{}) Event {
+	timestamp := time.Now()
 	data := l.Context
 	message, kv, err := messagetemplates.Format(template, values...)
 	if err != nil {
 		panic(err)
 	}
-
 	data = append(data, kv...)
 
 	return Event{
@@ -89,5 +91,6 @@ func (l *Logger) event(level Level, template string, values ...interface{}) Even
 		level,
 		message,
 		template,
+		timestamp,
 	}
 }

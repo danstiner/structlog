@@ -56,18 +56,6 @@ type Logger struct {
 }
 ```
 
-## Contributing
-
-Contributions are welcome, please open an issue or send a pull-request.
-
-### Testing
-
-``make test``
-
-### Benchmarks
-
-``make bench``
-
 [doc-img]: https://godoc.org/github.com/danstiner/structlog?status.svg
 [doc]: https://godoc.org/github.com/danstiner/structlog
 [ci-img]: https://travis-ci.org/danstiner/structlog.svg?branch=master

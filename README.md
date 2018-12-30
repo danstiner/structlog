@@ -77,5 +77,5 @@ While this library does not aim to win against speed-centric loggers like [zap](
 [doc]: https://godoc.org/github.com/danstiner/structlog
 [ci-img]: https://travis-ci.org/danstiner/go-structlog.svg?branch=master
 [ci]: https://travis-ci.org/danstiner/go-structlog
-[fossa-img]: https://app.fossa.io/api/projects/git+github.com/danstiner/go-structlog.svg?type=shield
-[fossa]: https://app.fossa.io/projects/git+github.com/danstiner/go-structlog?ref=badge_shield
+[fossa-img]: https://app.fossa.io/api/projects/git+github.com/danstiner/structlog.svg?type=shield
+[fossa]: https://app.fossa.io/projects/git+github.com/danstiner/structlog?ref=badge_shield

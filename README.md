@@ -69,8 +69,6 @@ Contributions are welcomed, please open an issue or send a pull-request.
 
 ### Benchmarks
 
-While this library does not aim to win against speed-centric loggers like [zap](https://github.com/uber-go/zap) or [zerolog](https://github.com/rs/zerolog), it certainly is no slouch. If performance is a concern, avoid `sink.Json` and serialized fields the JSON sink 
-
 ``make bench``
 
 [doc-img]: https://godoc.org/github.com/danstiner/structlog?status.svg

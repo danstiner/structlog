@@ -1,10 +1,10 @@
 # structlog [![GoDoc][doc-img]][doc] [![Build Status][ci-img]][ci]
 
-Structured logger for Go using the [message templates](https://messagetemplates.org/) format.
+Structured logger for Go using the [message templates](https://messagetemplates.org/) format. Inspired by [Serilog](https://serilog.net/).
 
 ## Motivation
 
-Structured logging makes it easier to search and extract useful information from your logs. In Go this is usually accomplished by passing key-value pairs to your logger in addition to a string message. This library instead embeddeds the key names in a message format string, an approach originally from the [Serilog](https://serilog.net/) library for C#.
+Structured logging makes it easier to search and extract useful information from your logs. In Go this usually means passing key-value pairs to your logger in addition to a string message. This library takes a more compact approach by embeddeding key names in the message string itself.
 
 ## Example
 

@@ -95,7 +95,7 @@ func TestJsonTimestamp(t *testing.T) {
 
 func TestJsonSink(t *testing.T) {
 	var buf bytes.Buffer
-	suite.Run(t, NewSinkTestSuite(Json{&buf}))
+	suite.Run(t, NewSinkTestSuite(NewJson(&buf)))
 }
 
 func toMap(i interface{}) (map[string]interface{}, error) {

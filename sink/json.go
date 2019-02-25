@@ -10,11 +10,11 @@ import (
 )
 
 func NewJson(writer io.Writer) structlog.Sink {
-	return Json{writer}
+	return Json{json.NewEncoder(writer)}
 }
 
 type Json struct {
-	writer io.Writer
+	encoder *json.Encoder
 }
 
 func (s Json) Log(event structlog.Event) {
@@ -29,11 +29,7 @@ func (s Json) Log(event structlog.Event) {
 	m["$template"] = event.Template
 	m["$timestamp"] = event.Timestamp.UTC().Format(time.RFC3339)
 
-	bytes, err := json.Marshal(m)
-	if err != nil {
-		panic(err)
-	}
-	_, err = s.writer.Write(bytes)
+	err := s.encoder.Encode(m)
 	if err != nil {
 		panic(err)
 	}

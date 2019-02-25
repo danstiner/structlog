@@ -79,13 +79,12 @@ func (l *Logger) Panic(template string, values ...interface{}) {
 
 func (l *Logger) event(level Level, template string, values ...interface{}) Event {
 	timestamp := time.Now()
-	data := l.Context
 	message, kv, err := messagetemplates.Format(template, values...)
 	if err != nil {
 		panic(err)
 	}
+	data := l.Context
 	data = append(data, kv...)
-
 	return Event{
 		data,
 		level,

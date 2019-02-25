@@ -37,12 +37,12 @@ type part struct {
 func Format(template string, values ...interface{}) (string, []KV, error) {
 	parsed, err := Parse(template)
 	if err != nil {
-		return "", nil, fmt.Errorf("TODO: %v", err)
+		return "", nil, errors.Wrap(err, "failed to parse template")
 	}
 	return Render(parsed, values...)
 }
 
-// Parse takes a template string and produces a renderable Template
+// Parse takes a template string into a Template struct that can be rendered
 func Parse(template string) (Template, error) {
 	var argIndex int
 	var lastIndex int
@@ -133,7 +133,7 @@ func Parse(template string) (Template, error) {
 			} else {
 				holeType = "Name"
 			}
-			return Template{}, fmt.Errorf("unexpected end of %s", holeType)
+			return Template{}, errors.Errorf("unexpected end of %s-type hole", holeType)
 		}
 
 		hole.string = template[lastIndex:j]
@@ -143,7 +143,7 @@ func Parse(template string) (Template, error) {
 			var err error
 			hole.argIndex, err = strconv.Atoi(hole.string)
 			if err != nil {
-				return Template{}, fmt.Errorf("TODO: %v", err)
+				return Template{}, errors.Wrap(err, "invalid value for Index-type hole")
 			}
 		}
 

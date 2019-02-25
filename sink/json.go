@@ -14,7 +14,7 @@ func NewJson(writer io.Writer) structlog.Sink {
 }
 
 type Json struct {
-	Writer io.Writer
+	writer io.Writer
 }
 
 func (s Json) Log(event structlog.Event) {
@@ -33,7 +33,7 @@ func (s Json) Log(event structlog.Event) {
 	if err != nil {
 		panic(err)
 	}
-	_, err = s.Writer.Write(bytes)
+	_, err = s.writer.Write(bytes)
 	if err != nil {
 		panic(err)
 	}

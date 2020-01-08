@@ -25,7 +25,7 @@ build:
 	go build -ldflags "-X main.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X main.VersionPrerelease=DEV" -o bin/${BIN_NAME}
 
 get-deps:
-	dep ensure
+	go get
 
 clean:
 	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}

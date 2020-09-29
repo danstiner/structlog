@@ -54,8 +54,11 @@ type Logger struct {
     Panic(template string, values ...interface{})
 
     With(key string, value interface{}) Logger
+    WithFields(fields Fields) Logger
     WithError(err error) Logger
 }
+
+type Fields map[string]interface{}
 ```
 
 [doc-img]: https://godoc.org/github.com/danstiner/structlog?status.svg

@@ -6,6 +6,9 @@ GIT_COMMIT=$(shell git rev-parse HEAD)
 GIT_DIRTY=$(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
 IMAGE_NAME := "danstiner/structlog"
 
+# go source files, ignore vendor directory
+SRC = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+
 default: test
 
 help:
@@ -32,6 +35,17 @@ clean:
 
 test:
 	go test ./...
+
+fmt:
+	@gofmt -l -w $(SRC)
+
+simplify:
+	@gofmt -s -l -w $(SRC)
+
+check:
+	@test -z $(shell gofmt -l main.go | tee /dev/stderr) || echo "[WARN] Fix formatting issues with 'make fmt'"
+	@for d in $$(go list ./... | grep -v /vendor/); do golint $${d}; done
+	@go vet ${SRC}
 
 bench:
 	go test -bench=. ./...

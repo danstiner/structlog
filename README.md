@@ -40,7 +40,7 @@ Some benefits of this approach:
 
 - Simple syntax, just surround key names in the format with braces and put the values in the same order
 - `@` can be used to serialize structs and other complex values as JSON
-- The format string can be logged as is, this makes it easy to use `grep` to find which line of code a log originated from
+- The format string can be logged as is, this makes it easy to use `grep` to find which line of code a log came from
 
 ## Interface
 

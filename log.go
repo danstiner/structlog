@@ -59,6 +59,11 @@ func (l Logger) With(key string, value interface{}) Logger {
 	return l
 }
 
+func (l Logger) WithError(err error) Logger {
+	l.Context = append(l.Context, messagetemplates.KV{Key: "$error", Value: err})
+	return l
+}
+
 func (l *Logger) Trace(template string, values ...interface{}) {
 	l.Sink.Log(l.event(TraceLevel, template, values...))
 }

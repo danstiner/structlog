@@ -38,6 +38,7 @@ Formatted output:
 
 Some benefits of this approach:
 
+- Simple syntax
 - Values are included in both the message and structured data without repeating yourself
 - No awkward syntax for passing key-value pairs as structs or arguments that alternate between keys and values
 - The template is logged to enable both aggregation and use of `grep` to find which line of code a log originated from
@@ -53,6 +54,7 @@ type Logger struct {
     Panic(template string, values ...interface{})
 
     With(key string, value interface{}) Logger
+    WithError(err error) Logger
 }
 ```
 

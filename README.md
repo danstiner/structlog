@@ -4,7 +4,7 @@ Structured logger for Go using the [message templates](https://messagetemplates.
 
 ## Motivation
 
-Structured logging makes it easier to search and extract useful information from your logs. In Go this usually means passing key-value pairs to your logger in addition to a string message. This library takes a more compact approach by embeddeding key names in the message string itself.
+Structured logging makes it easier to search and extract useful information from your logs. In Go this usually means passing key-value pairs to your logger in addition to a string message. This library takes a more compact approach by embeddeding key names in the format string itself.
 
 ## Example
 
@@ -38,11 +38,9 @@ Formatted output:
 
 Some benefits of this approach:
 
-- Simple syntax
-- Values are included in both the message and structured data without repeating yourself
-- No awkward syntax for passing key-value pairs as structs or arguments that alternate between keys and values
-- The template is logged to enable both aggregation and use of `grep` to find which line of code a log originated from
+- Simple syntax, just surround key names in the format with braces and put the values in the same order
 - `@` can be used to serialize structs and other complex values as JSON
+- The format string can be logged as is, this makes it easy to use `grep` to find which line of code a log originated from
 
 ## Interface
 

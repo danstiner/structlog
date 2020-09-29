@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/danstiner/structlog"
-	"github.com/danstiner/structlog/messagetemplates"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -20,6 +19,7 @@ func TestJsonLevel(t *testing.T) {
 	log := NewJson(&buf)
 
 	log.Log(structlog.Event{
+		Fields: make(map[string]interface{}),
 		Level: expected,
 	})
 
@@ -37,6 +37,7 @@ func TestJsonMessage(t *testing.T) {
 	log := NewJson(&buf)
 
 	log.Log(structlog.Event{
+		Fields: make(map[string]interface{}),
 		Message: expected,
 	})
 
@@ -61,8 +62,8 @@ func TestJsonStructData(t *testing.T) {
 
 	log.Log(structlog.Event{
 		Message: "message",
-		Data: []messagetemplates.KV{
-			messagetemplates.KV{Key: key, Value: pos},
+		Fields: structlog.Fields{
+			key: pos,
 		},
 	})
 
@@ -81,6 +82,7 @@ func TestJsonTimestamp(t *testing.T) {
 	sink := NewJson(&buf)
 
 	sink.Log(structlog.Event{
+		Fields: make(map[string]interface{}),
 		Timestamp: now,
 	})
 

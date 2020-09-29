@@ -10,4 +10,8 @@ func NewNoop() structlog.Logger {
 
 type Noop struct{}
 
-func (s Noop) Log(event structlog.Event) {}
+func (s Noop) Log(event structlog.Event) {
+	if event.Level == structlog.PanicLevel {
+		panic(event.Message)
+	}
+}

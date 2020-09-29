@@ -2,7 +2,6 @@ package sink
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"time"
 
@@ -18,19 +17,15 @@ type Json struct {
 }
 
 func (s Json) Log(event structlog.Event) {
-	m := make(map[string]interface{})
-
-	for _, datum := range event.Data {
-		m[fmt.Sprintf("%v", datum.Key)] = datum.Value
-	}
-
-	m["$level"] = event.Level.String()
-	m["$message"] = event.Message
-	m["$template"] = event.Template
-	m["$timestamp"] = event.Timestamp.UTC().Format(time.RFC3339)
-
-	err := s.encoder.Encode(m)
+	event.Fields["$level"] = event.Level.String()
+	event.Fields["$message"] = event.Message
+	event.Fields["$template"] = event.Template
+	event.Fields["$timestamp"] = event.Timestamp.UTC().Format(time.RFC3339)
+	err := s.encoder.Encode(event.Fields)
 	if err != nil {
 		panic(err)
+	}
+	if event.Level == structlog.PanicLevel {
+		panic(event.Message)
 	}
 }

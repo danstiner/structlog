@@ -18,24 +18,34 @@ func NewSinkTestSuite(sink structlog.Sink) *SinkTestSuite {
 
 func (suite *SinkTestSuite) TestTrace() {
 	suite.sink.Log(structlog.Event{
+		Fields: make(map[string]interface{}),
 		Level: structlog.TraceLevel,
 	})
 }
 
 func (suite *SinkTestSuite) TestInfo() {
 	suite.sink.Log(structlog.Event{
+		Fields: make(map[string]interface{}),
 		Level: structlog.InfoLevel,
 	})
 }
 
 func (suite *SinkTestSuite) TestError() {
 	suite.sink.Log(structlog.Event{
+		Fields: make(map[string]interface{}),
 		Level: structlog.ErrorLevel,
 	})
 }
 
 func (suite *SinkTestSuite) TestPanic() {
+	defer func() {
+        if r := recover(); r == nil {
+            suite.Fail("Expected panic")
+        }
+	}()
+	
 	suite.sink.Log(structlog.Event{
+		Fields: make(map[string]interface{}),
 		Level: structlog.PanicLevel,
 	})
 }

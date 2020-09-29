@@ -13,9 +13,11 @@ func New(sink Sink) Logger {
 	}
 }
 
+type Fields map[string]interface{}
+
 type Logger struct {
-	Context []messagetemplates.KV
-	Sink    Sink
+	Fields Fields
+	Sink   Sink
 }
 
 type Level int
@@ -47,21 +49,37 @@ type Sink interface {
 }
 
 type Event struct {
-	Data      []messagetemplates.KV
+	Fields    Fields
 	Level     Level
 	Message   string
 	Template  string
 	Timestamp time.Time
 }
 
-func (l Logger) With(key string, value interface{}) Logger {
-	l.Context = append(l.Context, messagetemplates.KV{Key: key, Value: value})
-	return l
+const ErrorKey = "error"
+
+func (l *Logger) With(key string, value interface{}) Logger {
+	newFields := make(Fields, len(l.Fields)+1)
+	for k, v := range l.Fields {
+		newFields[k] = v
+	}
+	newFields[key] = value
+	return Logger{newFields, l.Sink}
 }
 
-func (l Logger) WithError(err error) Logger {
-	l.Context = append(l.Context, messagetemplates.KV{Key: "$error", Value: err})
-	return l
+func (l *Logger) WithFields(fields Fields) Logger {
+	newFields := make(Fields, len(l.Fields)+len(fields))
+	for k, v := range l.Fields {
+		newFields[k] = v
+	}
+	for k, v := range fields {
+		newFields[k] = v
+	}
+	return Logger{newFields, l.Sink}
+}
+
+func (l *Logger) WithError(err error) Logger {
+	return l.With(ErrorKey, err)
 }
 
 func (l *Logger) Trace(template string, values ...interface{}) {
@@ -84,14 +102,19 @@ func (l *Logger) Panic(template string, values ...interface{}) {
 
 func (l *Logger) event(level Level, template string, values ...interface{}) Event {
 	timestamp := time.Now()
-	message, kv, err := messagetemplates.Format(template, values...)
+	message, kvs, err := messagetemplates.Format(template, values...)
 	if err != nil {
 		panic(err)
 	}
-	data := l.Context
-	data = append(data, kv...)
+	fields := make(Fields, len(l.Fields)+len(kvs))
+	for k, v := range l.Fields {
+		fields[k] = v
+	}
+	for _, kv := range kvs {
+		fields[kv.Key] = kv.Value
+	}
 	return Event{
-		data,
+		fields,
 		level,
 		message,
 		template,
